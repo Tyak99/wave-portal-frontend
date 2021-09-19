@@ -86,6 +86,7 @@ export default function App() {
     const { ethereum } = window;
     if (!ethereum) {
       alert("Get MetaMask");
+      return;
     }
 
     ethereum
@@ -212,7 +213,7 @@ export default function App() {
                         padding: "0.5rem",
                       }}
                     >
-                      <p>Address: {wave.address}</p>
+                      <p className="address">Address: {wave.address}</p>
                       <p>Message: {wave.message}</p>
                       <p>Time: {wave.timestamp.toString()}</p>
                       <p>

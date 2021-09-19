@@ -2,6 +2,8 @@
   min-height: 100vh;
   background-color: black;
   padding-top: 100px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .mainContainer {
@@ -49,6 +51,7 @@
   border-radius: 5px;
   font-size: 16px;
   font-weight: bold;
+  background-color: #efefef;
 }
 
 .waveTime {
@@ -60,4 +63,13 @@
   margin-top: 10px;
   font-size: 12px;
   text-align: center;
+}
+
+.address {
+}
+
+@media only screen and (max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait) {
+  .address {
+    font-size: 12px;
+  }
 }
