@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-// import { ethers } from "ethers";
 import "./App.css";
 import ABI from "./utils/WavePortal.json";
 
@@ -92,7 +91,6 @@ export default function App() {
     ethereum
       .request({ method: "eth_requestAccounts" })
       .then((accounts) => {
-        console.log("connected account", accounts[0]);
         setCurrentAccount(accounts[0]);
       })
       .catch((error) => {
@@ -169,11 +167,9 @@ export default function App() {
                     ></div>
                   </button>
                   <p
+                    className="desc"
                     style={{
                       color: "#00ffa2",
-                      marginTop: "10px",
-                      fontSize: "12px",
-                      textAlign: "center",
                     }}
                   >
                     Lesgoo!! Your message is currently being sent to the
@@ -185,14 +181,7 @@ export default function App() {
                   <button className="waveButton" onClick={wave}>
                     Wave
                   </button>
-                  <p
-                    style={{
-                      color: "white",
-                      marginTop: "10px",
-                      fontSize: "12px",
-                      textAlign: "center",
-                    }}
-                  >
+                  <p className="desc">
                     There is also a 50% chance you earn 0.0001 ETH every time
                     you wave :)
                   </p>
@@ -240,14 +229,36 @@ export default function App() {
           )}
 
           {!currentAccount && (
-            <div>
+            <>
               <button onClick={connectAccount} className="waveButton">
                 Connect Wallet
               </button>
-              <p>
-                You need to connect your wallet before you can wave at me :)
+              <p className="desc">Connect your wallet to send me waves :)</p>
+              <p className="desc">
+                You need{" "}
+                <span>
+                  <a
+                    href="https://metamask.io/download.html"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: "green" }}
+                  >
+                    Meta Mask
+                  </a>
+                </span>
+                , and some{" "}
+                <span>
+                  <a
+                    href="https://rinkeby.io/#faucet"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: "coral" }}
+                  >
+                    RinkeBy
+                  </a>
+                </span>
               </p>
-            </div>
+            </>
           )}
         </div>
       </div>
