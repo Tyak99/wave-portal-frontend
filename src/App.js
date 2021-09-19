@@ -8,7 +8,8 @@ const formatWei = (wei) => {
   const amount = ethers.utils.formatEther(wei);
   return amount;
 };
-const contractAddress = "0xbc60c3C16fc9E6A89897B46b0Cb7901764E58ea8";
+console.log(process.env.REACT_APP_CONTRACT_ADDRESS);
+const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 export default function App() {
   const [currentAccount, setCurrentAccount] = useState(null);
   const [message, setMessage] = useState("");
