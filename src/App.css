@@ -17,6 +17,10 @@
   max-width: 600px;
 }
 
+.inputArea {
+  width: 100%;
+  margin-top: 1rem;
+}
 .header {
   text-align: center;
   font-size: 32px;
@@ -43,4 +47,8 @@
   padding: 8px;
   border: 0;
   border-radius: 5px;
+}
+
+.waveTime {
+  color: white;
 }
