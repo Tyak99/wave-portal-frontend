@@ -4,12 +4,15 @@ import { ethers } from "ethers";
 import "./App.css";
 import ABI from "./utils/WavePortal.json";
 
-const contractAddress = "0x8EEfE247625678605A9A633EFDCeC3361DF0D3A1";
+const formatWei = (wei) => {
+  const amount = ethers.utils.formatEther(wei);
+  return amount;
+};
+const contractAddress = "0xbc60c3C16fc9E6A89897B46b0Cb7901764E58ea8";
 export default function App() {
   const [currentAccount, setCurrentAccount] = useState(null);
   const [message, setMessage] = useState("");
   const [mining, setMining] = useState(false);
-  const [totalWaves, setTotalWaves] = useState(0);
   const [allWaves, setAllWaves] = useState([]);
   const contractABI = ABI.abi;
 
@@ -21,7 +24,6 @@ export default function App() {
       contractABI,
       signer
     );
-    let count = await waveportalContract.getTotalWaves();
     const waves = await waveportalContract.getWaves();
 
     const reformedWaves = waves.map((wave) => {
@@ -29,10 +31,25 @@ export default function App() {
         address: wave.waver,
         message: wave.message,
         timestamp: new Date(wave.timestamp * 1000),
+        amountEarned: formatWei(wave.amountEarned),
       };
     });
     setAllWaves(reformedWaves);
-    setTotalWaves(Number(count));
+
+    waveportalContract.on(
+      "newWave",
+      (from, timestamp, amountEarned, message) => {
+        setAllWaves([
+          {
+            address: from,
+            timestamp: new Date(timestamp * 1000),
+            message: message,
+            amountEarned: formatWei(amountEarned),
+          },
+          ...waves,
+        ]);
+      }
+    );
   };
 
   const checkIfWalletConnected = () => {
@@ -59,6 +76,7 @@ export default function App() {
   useEffect(() => {
     checkIfWalletConnected();
   }, []);
+
   useEffect(() => {
     if (!currentAccount) return;
     getTotalWaves();
@@ -94,15 +112,14 @@ export default function App() {
         signer
       );
 
-      const waveTxn = await waveportalContract.wave(message);
+      const waveTxn = await waveportalContract.wave(message, {
+        gasLimit: 300000,
+      });
       setMining(true);
       console.log("Mmining", waveTxn.hash);
       await waveTxn.wait();
       setMining(false);
 
-      alert("Yipee, you just waved at me. Thanks!");
-      let waveCount = await waveportalContract.getTotalWaves();
-      setTotalWaves(Number(waveCount));
       setMessage("");
     } catch (error) {
       console.log({ error });
@@ -117,10 +134,20 @@ export default function App() {
           <div className="intro">My name is Babatunde</div>
           <div className="bio">
             I am a Software Engineer, and a Crypto Enthusiast. With the help of
-            _buildspace, I developed this Web3 app with Solidity and Ethereum
-            smart contracts. Do you want to see your messages live on the
-            blockchain? Eazzzy. Connect your Ethereum wallet, type your message,
-            and wave at me!
+            <span>
+              <a
+                href="https://twitter.com/_buildspace"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "aqua" }}
+              >
+                _buildspace,
+              </a>
+            </span>{" "}
+            I developed this Web3 app with Solidity and Ethereum smart
+            contracts. Do you want to see your messages live on the blockchain?
+            Eazzzy. Connect your Ethereum wallet, type your message, and wave at
+            me!
           </div>
           {currentAccount && (
             <>
@@ -131,21 +158,64 @@ export default function App() {
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
               />
-              <button className="waveButton" onClick={wave} disabled={mining}>
-                {mining ? "Mining..." : "Wave"}
-              </button>
+              {mining ? (
+                <>
+                  <button className="waveButton ld-ext-right running">
+                    Mining...
+                    <div
+                      class="ld ld-ring ld-coin-h"
+                      style={{ background: "black" }}
+                    ></div>
+                  </button>
+                  <p
+                    style={{
+                      color: "#00ffa2",
+                      marginTop: "10px",
+                      fontSize: "12px",
+                      textAlign: "center",
+                    }}
+                  >
+                    Lesgoo!! Your message is currently being sent to the
+                    blockchain.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button className="waveButton" onClick={wave}>
+                    Wave
+                  </button>
+                  <p
+                    style={{
+                      color: "white",
+                      marginTop: "10px",
+                      fontSize: "12px",
+                      textAlign: "center",
+                    }}
+                  >
+                    There is also a 50% chance you earn 0.0001 ETH every time
+                    you wave :)
+                  </p>
+                </>
+              )}
 
               <div style={{ marginTop: "2rem" }}>
-                <h2 style={{ color: "white", textAlign: "center" }}>
+                <h2
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    borderBottom: "1px solid",
+                  }}
+                >
                   Check out the waves!!🏄🏻
                 </h2>
                 <div>
-                  <p className="waveTime">Waves Count: {totalWaves}</p>
+                  <p className="waveTime">Waves Count: {allWaves.length}</p>
                 </div>
 
                 {allWaves.map((wave) => {
                   return (
                     <div
+                      key={wave.timestamp.toString()}
                       style={{
                         backgroundColor: "#f1bfca",
                         marginTop: "1rem",
@@ -155,6 +225,12 @@ export default function App() {
                       <p>Address: {wave.address}</p>
                       <p>Message: {wave.message}</p>
                       <p>Time: {wave.timestamp.toString()}</p>
+                      <p>
+                        Amount Earned:{" "}
+                        {wave.amountEarned > 0
+                          ? `${wave.amountEarned} ETH`
+                          : "Sorry, try again :("}
+                      </p>
                     </div>
                   );
                 })}
